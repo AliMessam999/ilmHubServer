@@ -7,9 +7,9 @@ app.use(express.json());
 
 app.get("/api", (req, res) => {
   res.json({
-    message: "Backend Connected Successfully"
+    message: "Backend Connected Successfully 🚀"
   });
 });
 
-module.exports = app;
-module.exports.handler = serverless(app);
+// ✅ ONLY this export
+module.exports = serverless(app);
