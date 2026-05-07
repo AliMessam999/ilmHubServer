@@ -7,7 +7,9 @@
     "dev": "nodemon src/index.js",
     "test": "echo \"Error: no test specified\" && exit 1",
     "seed": "npx prisma db seed",
-    "capture-seed": "node prisma/capture-seed.js"
+    "capture-seed": "node prisma/capture-seed.js",
+    "postinstall": "prisma generate",
+    "vercel-build": "prisma generate"
   },
   "keywords": [],
   "author": "",

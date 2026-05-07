@@ -46,10 +46,10 @@ app.use(express.json());
 app.use('/uploads', express.static(path.join(__dirname, '../public/uploads')));
 
 // Routes
-app.use('/api/auth', require('./routes/auth'));
-app.use('/api/speakers', require('./routes/speakers'));
-app.use('/api/topics', require('./routes/topics'));
-app.use('/api/lectures', require('./routes/lectures'));
+app.use('/auth', require('./routes/auth'));
+app.use('/speakers', require('./routes/speakers'));
+app.use('/topics', require('./routes/topics'));
+app.use('/lectures', require('./routes/lectures'));
 
 app.get('/', (req, res) => {
   res.send('IlmHub API is running...');
