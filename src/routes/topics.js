@@ -1,5 +1,11 @@
 const express = require('express');
-const { getTopics, createTopic, updateTopic, deleteTopic } = require('../controllers/topicController');
+const {
+  getTopics,
+  createTopic,
+  updateTopic,
+  deleteTopic,
+} = require('../controllers/topicController');
+
 const { auth, adminOnly } = require('../middleware/auth');
 
 const router = express.Router();

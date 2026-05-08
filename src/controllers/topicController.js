@@ -1,53 +1,75 @@
-const { PrismaClient } = require('@prisma/client');
-const prisma = new PrismaClient();
+const Topic = require('../models/Topic');
+const Lecture = require('../models/Lecture');
 
 exports.getTopics = async (req, res) => {
-  const { sort } = req.query;
   try {
-    const topics = await prisma.topic.findMany({
-      include: {
-        _count: {
-          select: { lectures: true }
-        }
-      },
-      orderBy: sort === 'popular' ? { lectures: { _count: 'desc' } } : { name: 'asc' }
-    });
-    res.status(200).json(topics);
+    const topics = await Topic.find();
+
+    const topicsWithCount = await Promise.all(
+      topics.map(async (topic) => {
+        const count = await Lecture.countDocuments({
+          topics: topic._id,
+        });
+
+        return {
+          ...topic.toObject(),
+          lecturesCount: count,
+        };
+      })
+    );
+
+    if (req.query.sort === 'popular') {
+      topicsWithCount.sort((a, b) => b.lecturesCount - a.lecturesCount);
+    } else {
+      topicsWithCount.sort((a, b) => a.name.localeCompare(b.name));
+    }
+
+    res.status(200).json(topicsWithCount);
   } catch (error) {
-    res.status(500).json({ message: 'Error fetching topics', error: error.message });
+    res.status(500).json({
+      message: 'Error fetching topics',
+      error: error.message,
+    });
   }
 };
 
 exports.createTopic = async (req, res) => {
-  const { name } = req.body;
   try {
-    const topic = await prisma.topic.create({ data: { name } });
+    const topic = await Topic.create({ name: req.body.name });
     res.status(201).json(topic);
   } catch (error) {
-    res.status(500).json({ message: 'Error creating topic', error: error.message });
+    res.status(500).json({
+      message: 'Error creating topic',
+      error: error.message,
+    });
   }
 };
 
 exports.updateTopic = async (req, res) => {
-  const { id } = req.params;
-  const { name } = req.body;
   try {
-    const topic = await prisma.topic.update({
-      where: { id: parseInt(id) },
-      data: { name }
-    });
+    const topic = await Topic.findByIdAndUpdate(
+      req.params.id,
+      { name: req.body.name },
+      { new: true }
+    );
+
     res.status(200).json(topic);
   } catch (error) {
-    res.status(500).json({ message: 'Error updating topic', error: error.message });
+    res.status(500).json({
+      message: 'Error updating topic',
+      error: error.message,
+    });
   }
 };
 
 exports.deleteTopic = async (req, res) => {
-  const { id } = req.params;
   try {
-    await prisma.topic.delete({ where: { id: parseInt(id) } });
+    await Topic.findByIdAndDelete(req.params.id);
     res.status(200).json({ message: 'Topic deleted successfully' });
   } catch (error) {
-    res.status(500).json({ message: 'Error deleting topic', error: error.message });
+    res.status(500).json({
+      message: 'Error deleting topic',
+      error: error.message,
+    });
   }
 };
